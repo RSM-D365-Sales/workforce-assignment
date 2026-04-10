@@ -304,8 +304,8 @@ function orderToTask(order, parentId) {
     return {
         id: order.id,
         text: order.itemName,
-        start_date: order.scheduledStart,
-        end_date: order.scheduledEnd,
+        start_date: new Date(order.scheduledStart),
+        end_date: new Date(order.scheduledEnd),
         parent: parentId,
         progress: Math.min(progress, 1),
         priority: order.priority,
