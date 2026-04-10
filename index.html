@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSM D365 — Project Portfolio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f6fa;color:#1e293b;min-height:100vh}
+.header{background:linear-gradient(135deg,#003B49 0%,#006B77 100%);color:#fff;padding:48px 24px 56px;text-align:center}
+.header h1{font-size:32px;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px}
+.header h1 span{color:#78BE20}
+.header p{font-size:15px;color:rgba(255,255,255,.75);max-width:540px;margin:0 auto}
+.projects{max-width:900px;margin:-32px auto 40px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.card-banner{height:8px}
+.card-body{padding:24px 24px 20px;flex:1;display:flex;flex-direction:column}
+.card-body h2{font-size:18px;font-weight:600;margin-bottom:6px;color:#003B49}
+.card-body p{font-size:13px;color:#64748b;line-height:1.5;flex:1}
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.tag{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600}
+.tag.d365{background:#e0f2f1;color:#006B77}
+.tag.dashboard{background:#f0fdf4;color:#2E7D32}
+.tag.gantt{background:#e3f2fd;color:#1565c0}
+.tag.poc{background:#fff3e0;color:#e65100}
+.card-links{border-top:1px solid #f1f5f9;padding:14px 24px;display:flex;gap:12px}
+.card-links a{font-size:13px;font-weight:600;color:#006B77;text-decoration:none;padding:6px 16px;border-radius:6px;border:1px solid #006B77;transition:all .15s}
+.card-links a:hover{background:#006B77;color:#fff}
+.card-links a.primary{background:#006B77;color:#fff}
+.card-links a.primary:hover{background:#005a63}
+.footer{text-align:center;padding:24px;font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>RSM <span>D365</span></h1>
+  <p>Presales demonstrations and proof-of-concept applications built on Microsoft Dynamics 365 Finance &amp; Supply Chain Management.</p>
+</div>
+<div class="projects">
+  <div class="card">
+    <div class="card-banner" style="background:linear-gradient(90deg,#006B77,#78BE20)"></div>
+    <div class="card-body">
+      <h2>Workforce &amp; Routing Assignment</h2>
+      <p>Interactive laboratory operations dashboard and Gantt scheduling tool for ARUP Laboratories. Visualizes test order routing, machine utilization, and technician workload from D365 F&amp;SCM production data.</p>
+      <div class="card-tags">
+        <span class="tag d365">D365 F&amp;SCM</span>
+        <span class="tag dashboard">Dashboard</span>
+        <span class="tag gantt">Gantt</span>
+        <span class="tag poc">POC</span>
+      </div>
+    </div>
+    <div class="card-links">
+      <a class="primary" href="workforce-assignment-dashboard.html">Dashboard</a>
+      <a href="workforce-assignment-gantt.html">Gantt Scheduling</a>
+    </div>
+  </div>
+</div>
+<div class="footer">&copy; 2026 RSM US LLP</div>
+</body>
+</html>
