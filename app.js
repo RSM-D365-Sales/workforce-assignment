@@ -46,7 +46,6 @@ function configureGantt() {
 
     // Columns in the left grid — show full scheduled run details
     gantt.config.columns = [
-        {
         { name: "text", label: "Test Order / Resource", tree: true, width: 180, resize: true,
             template: function (task) {
                 if (task.type === "project") return "<b>" + task.text + "</b>";
