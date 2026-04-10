@@ -1,17 +1,17 @@
 {
   "navigationFallback": {
-    "rewrite": "/dashboard.html"
+    "rewrite": "/workforce-assignment-dashboard.html"
   },
   "routes": [
     {
       "route": "/",
-      "redirect": "/dashboard.html",
+      "redirect": "/workforce-assignment-dashboard.html",
       "statusCode": 301
     }
   ],
   "responseOverrides": {
     "404": {
-      "rewrite": "/dashboard.html"
+      "rewrite": "/workforce-assignment-dashboard.html"
     }
   },
   "globalHeaders": {
