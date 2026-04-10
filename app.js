@@ -216,14 +216,14 @@ function setScaleConfig(scale) {
     }
 }
 
-function setScale(scale) {
+function setScale(scale, e) {
     currentScale = scale;
     setScaleConfig(scale);
     gantt.render();
 
     // Update button active states
     document.querySelectorAll(".scale-btn").forEach(btn => btn.classList.remove("active"));
-    event.target.classList.add("active");
+    if (e && e.target) e.target.classList.add("active");
 }
 
 // ──────────────────────────────────────────
