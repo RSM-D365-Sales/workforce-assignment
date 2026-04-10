@@ -1,0 +1,23 @@
+# Dependencies & build artifacts
+node_modules/
+__pycache__/
+*.pyc
+
+# Python script used to generate PPTX (not needed for the web app)
+create_slide.py
+
+# Generated PowerPoint
+*.pptx
+
+# Power BI theme (not needed for web app)
+ARUP-Laboratories-Theme.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo

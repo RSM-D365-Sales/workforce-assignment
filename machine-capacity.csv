@@ -1,0 +1,7 @@
+MachineName,MachineType,CapacityHoursPerDay,AvailableDays,TotalCapacityHours,ScheduledHours,Notes
+Centrifuge Station,Pre-Analytic,16,7,112,38,Shared across 5 departments; 2 shifts available
+Hematology Analyzer,Analyzer,8,7,56,33,Single unit; day-shift primary
+Chemistry Analyzer,Analyzer,10,7,70,40,High-throughput; supports Chemistry + Hematology + Toxicology
+Immunoassay Platform,Immunology,12,7,84,71,Heavily loaded; serves 5 departments
+Mass Spectrometer,Spectrometry,8,7,56,22,Batch-scheduled; LC-MS/MS confirmations
+PCR Thermal Cycler,Molecular,8,7,56,24,Dedicated molecular lab; night-shift capable

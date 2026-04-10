@@ -1,0 +1,536 @@
+/* ============================================
+   D365 Laboratory Scheduling — Gantt POC Styles
+   ============================================ */
+
+:root {
+    --primary: #0078d4;
+    --primary-dark: #005a9e;
+    --success: #107c10;
+    --warning: #ff8c00;
+    --danger: #d13438;
+    --bg: #f3f2f1;
+    --surface: #ffffff;
+    --text: #323130;
+    --text-muted: #605e5c;
+    --border: #edebe9;
+    --shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ── TOOLBAR ────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.toolbar h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.toolbar .subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+
+.toolbar-left { display: flex; align-items: baseline; }
+.toolbar-center { display: flex; gap: 16px; align-items: center; }
+.toolbar-right { display: flex; gap: 10px; align-items: center; }
+
+/* ── TOGGLE BUTTONS ─────────────── */
+.view-toggle, .scale-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.toggle-btn, .scale-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    border: none;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.toggle-btn:not(:last-child), .scale-btn:not(:last-child) {
+    border-right: 1px solid var(--border);
+}
+
+.toggle-btn.active, .scale-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.toggle-btn:hover:not(.active), .scale-btn:hover:not(.active) {
+    background: #f0f0f0;
+}
+
+/* ── ACTION BUTTONS ─────────────── */
+.action-btn {
+    padding: 6px 16px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.action-btn:hover { background: #f0f0f0; }
+
+.action-btn.primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.action-btn.primary:hover {
+    background: var(--primary-dark);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: underline;
+    font-family: inherit;
+    margin-left: 12px;
+}
+
+/* ── STATUS INDICATOR ───────────── */
+.status-indicator {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #f0f0f0;
+    color: var(--text-muted);
+}
+
+.status-indicator.publishing {
+    background: #fff4ce;
+    color: #8a6d14;
+}
+
+.status-indicator.success {
+    background: #dff6dd;
+    color: var(--success);
+}
+
+.status-indicator.error {
+    background: #fde7e9;
+    color: var(--danger);
+}
+
+/* ── CHANGES BAR ────────────────── */
+.changes-bar {
+    background: #fff4ce;
+    padding: 8px 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0e68c;
+}
+
+.changes-bar.hidden { display: none; }
+
+#changes-count {
+    font-weight: 700;
+    color: var(--warning);
+    margin-right: 4px;
+}
+
+/* ── GANTT OVERRIDES ────────────── */
+.gantt_task_line {
+    border-radius: 4px;
+    border: none;
+}
+
+/* Grid resize handle (drag border between grid and timeline) */
+.gantt_grid_resize_wrap {
+    cursor: col-resize;
+    width: 7px !important;
+}
+
+.gantt_grid_resize_area {
+    background: var(--primary);
+    opacity: 0.15;
+    width: 3px;
+    border-radius: 2px;
+}
+
+/* Column resize handle */
+.gantt_grid_column_resize_wrap {
+    cursor: col-resize;
+}
+
+.gantt_grid_head_cell {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gantt_task_line.priority-high {
+    background: #d13438;
+}
+
+.gantt_task_line.priority-medium {
+    background: #0078d4;
+}
+
+.gantt_task_line.priority-low {
+    background: #107c10;
+}
+
+.gantt_task_line.task-modified {
+    box-shadow: 0 0 0 2px #ff8c00, 0 0 8px rgba(255,140,0,0.4);
+}
+
+.gantt_task_progress {
+    background: rgba(255,255,255,0.35);
+    border-radius: 4px;
+}
+
+.gantt_tree_content b { color: var(--primary-dark); }
+
+.resource-row {
+    background: #f8f8f8 !important;
+    font-weight: 600;
+}
+
+.gantt_scale_cell {
+    font-size: 12px;
+}
+
+/* ── GRID CELL DETAIL STYLES ────── */
+.grid-order-id {
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--primary-dark);
+    margin-right: 2px;
+}
+
+.grid-item-name {
+    font-size: 12px;
+    color: var(--text);
+}
+
+.grid-resource {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.grid-resource.machine {
+    background: #e8f4fd;
+    color: #0063b1;
+}
+
+.grid-resource.worker {
+    background: #f3e8fd;
+    color: #5c2d91;
+}
+
+/* ── TASK BAR CONTENT STYLES ────── */
+.gantt_task_content {
+    font-size: 12px;
+    padding: 0 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bar-order-id {
+    font-weight: 700;
+    font-size: 10px;
+    opacity: 0.85;
+    margin-right: 3px;
+}
+
+.bar-qty {
+    font-size: 10px;
+    opacity: 0.8;
+    margin-left: 3px;
+}
+
+/* Right-side resource label + modified indicator */
+.bar-resource {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.85);
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-right: 4px;
+}
+
+.modified-indicator {
+    color: #ff8c00;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ── TOOLTIP STYLES ─────────────── */
+.gantt-tooltip-custom {
+    font-size: 12px;
+    line-height: 1.5;
+    max-width: 340px;
+}
+
+.tt-header {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.tt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+}
+
+.tt-table td {
+    padding: 1px 4px;
+    vertical-align: top;
+}
+
+.tt-label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    white-space: nowrap;
+    width: 90px;
+}
+
+.tt-ops-header {
+    font-weight: 600;
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 2px;
+}
+
+.tt-op {
+    font-size: 11px;
+    padding-left: 8px;
+    opacity: 0.9;
+}
+
+.tt-modified {
+    color: #ff6b35;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+/* ── PRIORITY & STATUS BADGES ───── */
+.priority-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.priority-high   { background: #fde7e9; color: #d13438; }
+.priority-medium { background: #deecf9; color: #0078d4; }
+.priority-low    { background: #dff6dd; color: #107c10; }
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-scheduled { background: #deecf9; color: #0078d4; }
+.status-released  { background: #fff4ce; color: #8a6d14; }
+.status-started   { background: #dff6dd; color: #107c10; }
+
+/* ── MODAL ──────────────────────── */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal.hidden { display: none; }
+
+.modal-content {
+    background: var(--surface);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content.wide {
+    max-width: 750px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* ── CHANGES TABLE ──────────────── */
+.changes-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.changes-table th {
+    text-align: left;
+    padding: 8px 10px;
+    background: #f8f8f8;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+}
+
+.changes-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.changes-table tr:hover td {
+    background: #f5f5f5;
+}
+
+/* ── ORDER DETAIL GRID ──────────── */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 6px 12px;
+}
+
+.detail-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 4px 0;
+}
+
+.detail-value {
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+/* ── RESPONSIVE ─────────────────── */
+@media (max-width: 900px) {
+    .toolbar { flex-direction: column; gap: 8px; }
+    .toolbar-center { flex-wrap: wrap; }
+}
+
+/* ── JOB CONTEXT MENU ───────────── */
+.context-menu {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    min-width: 240px;
+    z-index: 10000;
+    padding: 4px 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.context-menu.hidden {
+    display: none;
+}
+
+.context-menu-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.1s;
+    white-space: nowrap;
+}
+
+.context-menu-item:hover {
+    background: #e8f4fd;
+    color: var(--primary-dark);
+}
+
+.context-menu-separator {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+}
+
+/* Highlighted task bar */
+.gantt_task_line.order-highlighted {
+    box-shadow: 0 0 0 3px #ffb900, 0 0 12px rgba(255,185,0,0.5) !important;
+}

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routing Assignments Dashboard — Power BI Mockup</title>
+<style>
+  /* ── Reset & Base ────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page { size: landscape; margin: 0.3in; }
+
+  /* ── Dashboard Shell ─────────────────────── */
+  .dashboard {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 16px 24px 24px;
+  }
+
+  /* ── Title Bar ───────────────────────────── */
+  .title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #f2c811;
+  }
+  .title-bar h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #252423;
+  }
+  .title-bar h1 span { color: #f2c811; }
+  .title-bar .meta {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+  }
+  .title-bar .meta strong { color: #555; }
+
+  /* ── Slicer Row ──────────────────────────── */
+  .slicer-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .slicer {
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .slicer-label { font-weight: 600; color: #666; white-space: nowrap; }
+  .slicer-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pill {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: default;
+  }
+  .pill.active { background: #0078d4; color: #fff; }
+  .pill.inactive { background: #f3f3f3; color: #888; border: 1px solid #ddd; }
+
+  /* ── KPI Row ─────────────────────────────── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .kpi-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 18px 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .kpi-card.blue::before   { background: #0078d4; }
+  .kpi-card.green::before  { background: #107c10; }
+  .kpi-card.orange::before { background: #ff8c00; }
+  .kpi-card.red::before    { background: #d13438; }
+  .kpi-card.purple::before { background: #8764b8; }
+  .kpi-card.teal::before   { background: #008272; }
+  .kpi-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .kpi-value { font-size: 32px; font-weight: 700; line-height: 1.1; }
+  .kpi-sub   { font-size: 11px; color: #999; margin-top: 4px; }
+  .kpi-card.blue .kpi-value   { color: #0078d4; }
+  .kpi-card.green .kpi-value  { color: #107c10; }
+  .kpi-card.orange .kpi-value { color: #ff8c00; }
+  .kpi-card.red .kpi-value    { color: #d13438; }
+  .kpi-card.purple .kpi-value { color: #8764b8; }
+  .kpi-card.teal .kpi-value   { color: #008272; }
+
+  /* ── Chart Grid ──────────────────────────── */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .chart-grid.three-col {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .chart-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .chart-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* ── Bar Chart (CSS-only) ────────────────── */
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 200px; padding-top: 10px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .bar-stack { display: flex; flex-direction: column; justify-content: flex-end; width: 100%; height: 180px; }
+  .bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    min-height: 2px;
+    transition: opacity .2s;
+  }
+  .bar:hover { opacity: .85; }
+  .bar-val {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    color: #444;
+    white-space: nowrap;
+  }
+  .bar-label {
+    font-size: 10px;
+    color: #666;
+    margin-top: 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+  }
+
+  /* ── Donut (CSS conic-gradient) ──────────── */
+  .donut-wrap { display: flex; align-items: center; gap: 24px; justify-content: center; }
+  .donut {
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    position: relative;
+  }
+  .donut::after {
+    content: '';
+    position: absolute;
+    top: 30%; left: 30%;
+    width: 40%; height: 40%;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .donut-legend { list-style: none; }
+  .donut-legend li {
+    font-size: 12px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .legend-val { font-weight: 700; }
+
+  /* ── Horizontal bar chart ────────────────── */
+  .h-bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .h-bar-row { display: flex; align-items: center; gap: 8px; }
+  .h-bar-label { width: 120px; font-size: 11px; color: #555; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .h-bar-track { flex: 1; height: 20px; background: #f3f3f3; border-radius: 4px; overflow: hidden; position: relative; }
+  .h-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+  .h-bar-fill span { font-size: 10px; font-weight: 700; color: #fff; }
+  .h-bar-val { width: 45px; font-size: 11px; font-weight: 700; color: #444; text-align: right; }
+
+  /* ── Table ───────────────────────────────── */
+  .mini-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .mini-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #666;
+    padding: 6px 8px;
+    border-bottom: 2px solid #0078d4;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+  .mini-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .mini-table tr:nth-child(even) { background: #fafbfc; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-high   { background: #fde7e9; color: #d13438; }
+  .badge-medium { background: #fff4ce; color: #c47f00; }
+  .badge-low    { background: #dff6dd; color: #107c10; }
+  .badge-sched  { background: #deecf9; color: #0063b1; }
+  .badge-rel    { background: #e8f5e9; color: #107c10; }
+
+  /* ── Gauge ───────────────────────────────── */
+  .gauge-row { display: flex; justify-content: space-around; align-items: center; padding: 10px 0; }
+  .gauge { text-align: center; }
+  .gauge-ring {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto 8px;
+  }
+  .gauge-ring::after {
+    content: attr(data-pct) '%';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+  }
+  .gauge-label { font-size: 11px; color: #666; }
+
+  /* ── Footer ──────────────────────────────── */
+  .footer-note {
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  /* ── Print tweaks ────────────────────────── */
+  @media print {
+    body { background: #fff; }
+    .dashboard { padding: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ═══════ TITLE BAR ═══════ -->
+  <div class="title-bar">
+    <h1><span>■</span> Routing Assignments Dashboard</h1>
+    <div class="meta">
+      <div><strong>Last Refreshed:</strong> THU 09 APR 2026 08:15:42</div>
+      <div>Snapshot Date: Apr 9, 2026</div>
+    </div>
+  </div>
+
+  <!-- ═══════ SLICER ROW ═══════ -->
+  <div class="slicer-row">
+    <div class="slicer">
+      <span class="slicer-label">Department:</span>
+      <div class="slicer-pills">
+        <span class="pill active">Production</span>
+        <span class="pill inactive">QC</span>
+        <span class="pill inactive">Collections</span>
+        <span class="pill inactive">Admin</span>
+      </div>
+    </div>
+    <div class="slicer">
+      <span class="slicer-label">Priority:</span>
+      <div class="slicer-pills">
+        <span class="pill active">All</span>
+        <span class="pill inactive">High</span>
+        <span class="pill inactive">Medium</span>
+        <span class="pill inactive">Low</span>
+      </div>
+    </div>
+    <div class="slicer">
+      <span class="slicer-label">Date Range:</span>
+      <div class="slicer-pills">
+        <span class="pill active">Apr 9 – Apr 15</span>
+      </div>
+    </div>
+    <div class="slicer">
+      <span class="slicer-label">Shift:</span>
+      <div class="slicer-pills">
+        <span class="pill active">All</span>
+        <span class="pill inactive">Day</span>
+        <span class="pill inactive">Night</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ KPI CARDS ═══════ -->
+  <div class="kpi-row">
+    <div class="kpi-card blue">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value">20</div>
+      <div class="kpi-sub">Active test orders</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Total Workload</div>
+      <div class="kpi-value">316 h</div>
+      <div class="kpi-sub">Estimated hours</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">Utilization</div>
+      <div class="kpi-value">78%</div>
+      <div class="kpi-sub">Avg resource load</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">High Priority</div>
+      <div class="kpi-value">9</div>
+      <div class="kpi-sub">Orders marked High</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">On Track</div>
+      <div class="kpi-value">85%</div>
+      <div class="kpi-sub">Within schedule</div>
+    </div>
+    <div class="kpi-card teal">
+      <div class="kpi-label">Samples Today</div>
+      <div class="kpi-value">258</div>
+      <div class="kpi-sub">Across all orders</div>
+    </div>
+  </div>
+
+  <!-- ═══════ ROW 1: Workload Bar + Status Donut ═══════ -->
+  <div class="chart-grid">
+    <!-- Total Workload by Resource (matches the screenshot) -->
+    <div class="chart-card">
+      <h3>Total Workload by Resource (Estimated Hours)</h3>
+      <div class="bar-chart">
+        <!-- Alex Rivera -->
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:45%; background:#0078d4;" title="Alex Rivera — 56h">
+              <span class="bar-val">56.0</span>
+            </div>
+          </div>
+          <div class="bar-label">Alex Rivera</div>
+        </div>
+        <!-- Jordan Lee -->
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:55%; background:#8764b8;" title="Jordan Lee — 68h">
+              <span class="bar-val">68.0</span>
+            </div>
+          </div>
+          <div class="bar-label">Jordan Lee</div>
+        </div>
+        <!-- Sam Patel -->
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:40%; background:#00b294;" title="Sam Patel — 48h">
+              <span class="bar-val">48.0</span>
+            </div>
+          </div>
+          <div class="bar-label">Sam Patel</div>
+        </div>
+        <!-- Casey Zhang -->
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:50%; background:#ff8c00;" title="Casey Zhang — 58h">
+              <span class="bar-val">58.0</span>
+            </div>
+          </div>
+          <div class="bar-label">Casey Zhang</div>
+        </div>
+        <!-- Morgan Brooks -->
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:48%; background:#d13438;" title="Morgan Brooks — 52h">
+              <span class="bar-val">52.0</span>
+            </div>
+          </div>
+          <div class="bar-label">Morgan Brooks</div>
+        </div>
+        <!-- Taylor Kim -->
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:35%; background:#107c10;" title="Taylor Kim — 42h">
+              <span class="bar-val">42.0</span>
+            </div>
+          </div>
+          <div class="bar-label">Taylor Kim</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status & Priority Donuts -->
+    <div class="chart-card">
+      <h3>Order Status / Priority Mix</h3>
+      <div style="margin-bottom: 18px;">
+        <div style="font-size:11px; color:#888; font-weight:600; margin-bottom:6px;">BY STATUS</div>
+        <div class="donut-wrap">
+          <div class="donut" style="background: conic-gradient(#0078d4 0% 55%, #107c10 55% 100%);"></div>
+          <ul class="donut-legend">
+            <li><span class="legend-dot" style="background:#0078d4;"></span> Scheduled <span class="legend-val">11</span></li>
+            <li><span class="legend-dot" style="background:#107c10;"></span> Released <span class="legend-val">9</span></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:#888; font-weight:600; margin-bottom:6px;">BY PRIORITY</div>
+        <div class="donut-wrap">
+          <div class="donut" style="background: conic-gradient(#d13438 0% 45%, #ff8c00 45% 75%, #107c10 75% 100%);"></div>
+          <ul class="donut-legend">
+            <li><span class="legend-dot" style="background:#d13438;"></span> High <span class="legend-val">9</span></li>
+            <li><span class="legend-dot" style="background:#ff8c00;"></span> Medium <span class="legend-val">6</span></li>
+            <li><span class="legend-dot" style="background:#107c10;"></span> Low <span class="legend-val">5</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ ROW 2: Machine Utilization + Gauges ═══════ -->
+  <div class="chart-grid">
+    <!-- Machine Utilization Horizontal Bars -->
+    <div class="chart-card">
+      <h3>Instrument Utilization (Scheduled Hours / Capacity)</h3>
+      <div class="h-bar-chart">
+        <div class="h-bar-row">
+          <div class="h-bar-label">Hematology Analyzer</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:85%; background: linear-gradient(90deg, #0078d4, #4ca6e8);"><span>85%</span></div></div>
+          <div class="h-bar-val">35 h</div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Chemistry Analyzer</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:92%; background: linear-gradient(90deg, #d13438, #e86c6f);"><span>92%</span></div></div>
+          <div class="h-bar-val">42 h</div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Mass Spectrometer</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:62%; background: linear-gradient(90deg, #ff8c00, #ffb347);"><span>62%</span></div></div>
+          <div class="h-bar-val">22 h</div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">PCR Thermal Cycler</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:78%; background: linear-gradient(90deg, #8764b8, #b09bd6);"><span>78%</span></div></div>
+          <div class="h-bar-val">32 h</div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Centrifuge Station</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:55%; background: linear-gradient(90deg, #107c10, #4aac4a);"><span>55%</span></div></div>
+          <div class="h-bar-val">26 h</div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Immunoassay Platform</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:88%; background: linear-gradient(90deg, #008272, #33b5a5);"><span>88%</span></div></div>
+          <div class="h-bar-val">48 h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion Gauges -->
+    <div class="chart-card">
+      <h3>Completion & Progress</h3>
+      <div class="gauge-row">
+        <div class="gauge">
+          <div class="gauge-ring" data-pct="5"
+               style="background: conic-gradient(#107c10 0% 5%, #e8e8e8 5% 100%);">
+          </div>
+          <div class="gauge-label">Actual vs Est</div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-ring" data-pct="85"
+               style="background: conic-gradient(#0078d4 0% 85%, #e8e8e8 85% 100%);">
+          </div>
+          <div class="gauge-label">On Schedule</div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-ring" data-pct="45"
+               style="background: conic-gradient(#ff8c00 0% 45%, #e8e8e8 45% 100%);">
+          </div>
+          <div class="gauge-label">Released %</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ ROW 3: Table + Hours by Department ═══════ -->
+  <div class="chart-grid">
+    <!-- Order Detail Table -->
+    <div class="chart-card">
+      <h3>Order Schedule Detail (Top 10 by Estimated Hours)</h3>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Test Name</th>
+            <th>Assigned To</th>
+            <th>Qty</th>
+            <th>Est Hours</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Start</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>TO-10001</td><td>Complete Blood Count Panel</td><td>Alex Rivera</td><td>48</td><td>24</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-high">High</span></td><td>Apr 9</td></tr>
+          <tr><td>TO-10009</td><td>SARS-CoV-2 RT-PCR Batch</td><td>Casey Zhang</td><td>94</td><td>24</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-medium">Medium</span></td><td>Apr 11</td></tr>
+          <tr><td>TO-10007</td><td>Lipid Panel w/ Fractionation</td><td>Alex Rivera</td><td>32</td><td>24</td><td><span class="badge badge-rel">Released</span></td><td><span class="badge badge-medium">Medium</span></td><td>Apr 12</td></tr>
+          <tr><td>TO-10019</td><td>Hepatitis Panel (A/B/C)</td><td>Jordan Lee</td><td>45</td><td>22</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-high">High</span></td><td>Apr 11</td></tr>
+          <tr><td>TO-10003</td><td>Blood Culture Analysis</td><td>Sam Patel</td><td>36</td><td>20</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-high">High</span></td><td>Apr 10</td></tr>
+          <tr><td>TO-10006</td><td>Thyroid Function Panel</td><td>Jordan Lee</td><td>40</td><td>20</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-high">High</span></td><td>Apr 12</td></tr>
+          <tr><td>TO-10008</td><td>Hemoglobin A1c Testing</td><td>Taylor Kim</td><td>80</td><td>20</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-low">Low</span></td><td>Apr 13</td></tr>
+          <tr><td>TO-10016</td><td>Blood Culture Processing</td><td>Morgan Brooks</td><td>28</td><td>20</td><td><span class="badge badge-sched">Scheduled</span></td><td><span class="badge badge-high">High</span></td><td>Apr 12</td></tr>
+          <tr><td>TO-10002</td><td>Comprehensive Metabolic Panel</td><td>Jordan Lee</td><td>96</td><td>16</td><td><span class="badge badge-rel">Released</span></td><td><span class="badge badge-medium">Medium</span></td><td>Apr 9</td></tr>
+          <tr><td>TO-10004</td><td>Respiratory Pathogen PCR</td><td>Casey Zhang</td><td>24</td><td>16</td><td><span class="badge badge-rel">Released</span></td><td><span class="badge badge-low">Low</span></td><td>Apr 11</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Hours by Department -->
+    <div class="chart-card">
+      <h3>Hours by Department</h3>
+      <div class="h-bar-chart" style="margin-top: 10px;">
+        <div class="h-bar-row">
+          <div class="h-bar-label">Production</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:82%; background:#0078d4;"><span>232 h</span></div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">QC</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:45%; background:#ff8c00;"><span>70 h</span></div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Collections</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:8%; background:#8764b8;"><span>4 h</span></div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Admin</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:6%; background:#008272;"><span>4 h</span></div></div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 24px;">Day vs Night Shift Split</h3>
+      <div class="donut-wrap" style="margin-top:8px;">
+        <div class="donut" style="width:120px; height:120px; background: conic-gradient(#0078d4 0% 68%, #8764b8 68% 100%);"></div>
+        <ul class="donut-legend">
+          <li><span class="legend-dot" style="background:#0078d4;"></span> Day Shift <span class="legend-val">68%</span></li>
+          <li><span class="legend-dot" style="background:#8764b8;"></span> Night Shift <span class="legend-val">32%</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <div class="footer-note">
+    Power BI Dashboard Mockup — Routing Assignments for Route Orders &nbsp;|&nbsp; Data Source: routing-assignments-dataset.csv &nbsp;|&nbsp; © 2026
+  </div>
+
+</div>
+</body>
+</html>

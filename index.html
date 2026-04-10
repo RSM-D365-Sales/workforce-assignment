@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D365 Laboratory Scheduling - Gantt POC</title>
+
+    <!-- dhtmlxGantt (GPL v2 free edition) -->
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+    <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top toolbar -->
+    <header class="toolbar">
+        <div class="toolbar-left">
+            <h1>Laboratory Scheduling</h1>
+            <span class="subtitle">D365 F&amp;SCM Integration POC</span>
+        </div>
+        <div class="toolbar-center">
+            <div class="view-toggle">
+                <button id="btn-person" class="toggle-btn active" onclick="switchView('person')">By Technician</button>
+                <button id="btn-machine" class="toggle-btn" onclick="switchView('machine')">By Instrument</button>
+            </div>
+            <div class="scale-toggle">
+                <button class="scale-btn" onclick="setScale('hour')">Hours</button>
+                <button class="scale-btn active" onclick="setScale('day')">Days</button>
+                <button class="scale-btn" onclick="setScale('week')">Weeks</button>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button id="btn-refresh" class="action-btn" onclick="refreshData()">
+                &#x21bb; Refresh from D365
+            </button>
+            <button id="btn-publish" class="action-btn primary" onclick="publishChanges()">
+                &#x2191; Publish to D365
+            </button>
+            <span id="status-indicator" class="status-indicator">Ready</span>
+        </div>
+    </header>
+
+    <!-- Info bar showing pending changes -->
+    <div id="changes-bar" class="changes-bar hidden">
+        <span id="changes-count">0</span> pending change(s)
+        <button class="link-btn" onclick="showPendingChanges()">View Details</button>
+        <button class="link-btn" onclick="discardChanges()">Discard All</button>
+    </div>
+
+    <!-- Gantt container -->
+    <div id="gantt_here" style="width:100%; height:calc(100vh - 110px);"></div>
+
+    <!-- Pending changes modal -->
+    <div id="changes-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Pending Schedule Changes</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="changes-list" class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeModal()">Close</button>
+                <button class="action-btn primary" onclick="publishChanges(); closeModal();">Publish All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job context menu -->
+    <div id="job-context-menu" class="context-menu hidden">
+        <div class="context-menu-item" data-action="schedule-from-material">Schedule from material availability</div>
+        <div class="context-menu-item" data-action="schedule-previous">Schedule previous jobs</div>
+        <div class="context-menu-item" data-action="schedule-next">Schedule next jobs</div>
+        <div class="context-menu-item" data-action="schedule-around">Schedule around job</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="toggle-highlight">Toggle order highlight</div>
+        <div class="context-menu-item" data-action="capacity-load">Capacity load</div>
+    </div>
+
+    <!-- Order detail lightbox overlay (for custom info) -->
+    <div id="order-detail" class="modal hidden">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h2 id="detail-title">Order Details</h2>
+                <button class="close-btn" onclick="closeOrderDetail()">&times;</button>
+            </div>
+            <div id="detail-body" class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeOrderDetail()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="odata-service.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

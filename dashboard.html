@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routing Assignments Dashboard</title>
+<style>
+/* ── Reset & Base ──────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f4f4;color:#003B49}
+a{color:#006B77;text-decoration:none}
+
+/* ── Dashboard Shell ───────────────────────── */
+.dashboard{max-width:1480px;margin:0 auto;padding:16px 24px 24px}
+
+/* ── Title Bar ─────────────────────────────── */
+.title-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:10px;border-bottom:3px solid #006B77}
+.title-bar h1{font-size:22px;font-weight:600;color:#003B49}
+.title-bar h1 span{color:#78BE20}
+.title-bar .meta{font-size:12px;color:#6B8A94;text-align:right}
+.title-bar .meta strong{color:#003B49}
+
+/* ── Slicer / Filter Row ──────────────────── */
+.slicer-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.slicer{background:#fff;border:1px solid #e1e1e1;border-radius:6px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.slicer-label{font-weight:600;color:#4A6670;white-space:nowrap}
+.slicer-pills{display:flex;gap:4px;flex-wrap:wrap}
+.pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;user-select:none;transition:all .15s}
+.pill.active{background:#006B77;color:#fff}
+.pill:not(.active){background:#f3f3f3;color:#6B8A94;border:1px solid #ddd}
+.pill:not(.active):hover{background:#e0e7e9;color:#003B49}
+
+/* ── KPI Row ───────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+.kpi-card{background:#fff;border-radius:8px;padding:16px 18px 14px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:center;position:relative;overflow:hidden;transition:transform .15s}
+.kpi-card:hover{transform:translateY(-2px)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.kpi-card.c1::before{background:#006B77} .kpi-card.c2::before{background:#78BE20}
+.kpi-card.c3::before{background:#00838F} .kpi-card.c4::before{background:#C62828}
+.kpi-card.c5::before{background:#2E7D32} .kpi-card.c6::before{background:#00695C}
+.kpi-label{font-size:11px;color:#6B8A94;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-value{font-size:30px;font-weight:700;line-height:1.1}
+.kpi-sub{font-size:11px;color:#A0AEB2;margin-top:4px}
+.kpi-card.c1 .kpi-value{color:#006B77} .kpi-card.c2 .kpi-value{color:#78BE20}
+.kpi-card.c3 .kpi-value{color:#00838F} .kpi-card.c4 .kpi-value{color:#C62828}
+.kpi-card.c5 .kpi-value{color:#2E7D32} .kpi-card.c6 .kpi-value{color:#00695C}
+
+/* ── Chart Grid ────────────────────────────── */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:8px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.chart-card h3{font-size:13px;font-weight:600;color:#003B49;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e8ecee}
+
+/* ── Bar Chart ─────────────────────────────── */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:200px;padding-top:10px}
+.bar-group{display:flex;flex-direction:column;align-items:center;flex:1}
+.bar-stack{display:flex;flex-direction:column;justify-content:flex-end;width:100%;height:180px}
+.bar{width:100%;border-radius:3px 3px 0 0;position:relative;min-height:2px;transition:all .3s}
+.bar:hover{opacity:.85}
+.bar-val{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#003B49;white-space:nowrap}
+.bar-label{font-size:10px;color:#4A6670;margin-top:4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+
+/* ── Donut ─────────────────────────────────── */
+.donut-wrap{display:flex;align-items:center;gap:24px;justify-content:center}
+.donut{width:140px;height:140px;border-radius:50%;position:relative;transition:all .3s}
+.donut::after{content:'';position:absolute;top:28%;left:28%;width:44%;height:44%;background:#fff;border-radius:50%}
+.donut-legend{list-style:none}
+.donut-legend li{font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend-val{font-weight:700}
+
+/* ── Horizontal bar chart ──────────────────── */
+.h-bar-chart{display:flex;flex-direction:column;gap:8px}
+.h-bar-row{display:flex;align-items:center;gap:8px}
+.h-bar-label{width:130px;font-size:11px;color:#4A6670;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h-bar-track{flex:1;height:22px;background:#e8ecee;border-radius:4px;overflow:hidden;position:relative}
+.h-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;transition:width .4s}
+.h-bar-fill span{font-size:10px;font-weight:700;color:#fff}
+.h-bar-val{width:50px;font-size:11px;font-weight:700;color:#003B49;text-align:right}
+
+/* ── Table ─────────────────────────────────── */
+.mini-table{width:100%;border-collapse:collapse;font-size:11px}
+.mini-table th{text-align:left;font-weight:600;color:#fff;padding:8px;background:#006B77;font-size:10px;text-transform:uppercase;position:sticky;top:0;cursor:pointer;user-select:none}
+.mini-table th:hover{background:#005560}
+.mini-table th .sort-arrow{float:right;opacity:.5}
+.mini-table td{padding:5px 8px;border-bottom:1px solid #e8ecee}
+.mini-table tr:nth-child(even){background:#f8fafb}
+.mini-table tr:hover{background:#e8f0f2}
+.table-scroll{max-height:320px;overflow-y:auto;border-radius:6px;border:1px solid #e8ecee}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-High{background:#fce4ec;color:#C62828}
+.badge-Medium{background:#fff8e1;color:#F57F17}
+.badge-Low{background:#e8f5e9;color:#2E7D32}
+.badge-Scheduled{background:#e0f2f1;color:#006B77}
+.badge-Released{background:#e8f5e9;color:#2E7D32}
+
+/* ── Gauge ─────────────────────────────────── */
+.gauge-row{display:flex;justify-content:space-around;align-items:center;padding:10px 0;flex-wrap:wrap;gap:16px}
+.gauge{text-align:center}
+.gauge-ring{width:100px;height:100px;border-radius:50%;position:relative;margin:0 auto 8px;transition:all .3s}
+.gauge-ring::after{content:attr(data-pct) '%';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;font-weight:700;color:#003B49}
+.gauge-label{font-size:11px;color:#4A6670}
+
+/* ── Footer ────────────────────────────────── */
+.footer-note{text-align:center;font-size:11px;color:#A0AEB2;margin-top:12px;padding-top:8px;border-top:1px solid #e8ecee}
+
+/* ── Loading ───────────────────────────────── */
+.loading{text-align:center;padding:60px;color:#6B8A94;font-size:16px}
+.loading .spinner{display:inline-block;width:32px;height:32px;border:3px solid #e8ecee;border-top-color:#006B77;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Print ─────────────────────────────────── */
+@media print{body{background:#fff}.dashboard{padding:8px}.pill{cursor:default!important}}
+</style>
+</head>
+<body>
+
+<div class="dashboard" id="app">
+  <div class="loading"><div class="spinner"></div><br>Loading dashboard data…</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   Routing Assignments Dashboard — Interactive, filterable
+   Data source: routing-assignments-dataset.csv + machine-capacity.csv
+   ═══════════════════════════════════════════════════════════════════ */
+
+const COLORS = {
+  primary:   '#006B77',
+  green:     '#78BE20',
+  dark:      '#003B49',
+  teal2:     '#00838F',
+  red:       '#C62828',
+  forest:    '#2E7D32',
+  deepTeal:  '#00695C',
+  amber:     '#F57F17',
+  muted:     '#6B8A94',
+};
+const BAR_PALETTE = ['#006B77','#78BE20','#00838F','#2E7D32','#00695C','#4DB6AC','#66BB6A','#26A69A','#003B49','#81C784'];
+const MACHINE_GRADIENT = [
+  ['#006B77','#33a0a8'],['#00838F','#4DB6AC'],['#2E7D32','#66BB6A'],
+  ['#00695C','#26A69A'],['#78BE20','#a0d460'],['#003B49','#2D5F6E'],
+];
+
+// ── State ────────────────────────────────────────────────────────
+let rawData = [];
+let capacityData = [];
+let filters = { department: 'All', priority: 'All', shift: 'All', resource: 'All' };
+let tableSortCol = 'estHours';
+let tableSortAsc = false;
+
+// ── CSV Parser ───────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line => {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h.trim()] = vals[i] || '');
+    return obj;
+  });
+}
+
+// ── Data fetch ───────────────────────────────────────────────────
+async function loadData() {
+  const [csvResp, capResp] = await Promise.all([
+    fetch('routing-assignments-dataset.csv'),
+    fetch('machine-capacity.csv'),
+  ]);
+  rawData = parseCSV(await csvResp.text()).map(r => ({
+    ...r,
+    OperationSeq: +r.OperationSeq,
+    EstimatedHours: +r.EstimatedHours,
+    ActualHours: +r.ActualHours,
+    RemainingHours: +r.RemainingHours,
+    Quantity: +r.Quantity,
+    ScheduledStartDt: new Date(r.ScheduledStart),
+    ScheduledEndDt: new Date(r.ScheduledEnd),
+  }));
+  capacityData = parseCSV(await capResp.text()).map(r => ({
+    ...r,
+    CapacityHoursPerDay: +r.CapacityHoursPerDay,
+    AvailableDays: +r.AvailableDays,
+    TotalCapacityHours: +r.TotalCapacityHours,
+    ScheduledHours: +r.ScheduledHours,
+  }));
+  render();
+}
+
+// ── Filter logic ─────────────────────────────────────────────────
+function filtered() {
+  return rawData.filter(r => {
+    if (filters.department !== 'All' && r.Department !== filters.department) return false;
+    if (filters.priority !== 'All' && r.Priority !== filters.priority) return false;
+    if (filters.shift !== 'All' && r.Shift !== filters.shift) return false;
+    if (filters.resource !== 'All' && r.AssignedResource !== filters.resource) return false;
+    return true;
+  });
+}
+
+function unique(arr, key) {
+  return [...new Set(arr.map(r => r[key]))].sort();
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+function groupSum(arr, key, sumKey) {
+  const m = {};
+  arr.forEach(r => { m[r[key]] = (m[r[key]] || 0) + r[sumKey]; });
+  return Object.entries(m).sort((a, b) => b[1] - a[1]);
+}
+
+function groupCount(arr, key) {
+  const m = {};
+  arr.forEach(r => { m[r[key]] = (m[r[key]] || 0) + 1; });
+  return Object.entries(m);
+}
+
+function distinctCount(arr, key) {
+  return new Set(arr.map(r => r[key])).size;
+}
+
+function sum(arr, key) {
+  return arr.reduce((s, r) => s + (r[key] || 0), 0);
+}
+
+function pct(n, d) { return d ? Math.round(n / d * 100) : 0; }
+function fmt(n) { return Number.isInteger(n) ? n : n.toFixed(1); }
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ── Pill click handler ───────────────────────────────────────────
+function onPill(filterKey, value) {
+  filters[filterKey] = value;
+  render();
+}
+
+// ── Render ───────────────────────────────────────────────────────
+function render() {
+  const data = filtered();
+  const app = document.getElementById('app');
+
+  // Distinct dimensions from full dataset (for filter options)
+  const allDepts = unique(rawData, 'Department');
+  const allPriorities = unique(rawData, 'Priority');
+  const allShifts = unique(rawData, 'Shift');
+  const allResources = unique(rawData, 'AssignedResource');
+
+  // ── Aggregate order-level metrics (deduplicate by OrderID)
+  const orderMap = {};
+  data.forEach(r => {
+    if (!orderMap[r.OrderID]) {
+      orderMap[r.OrderID] = { id: r.OrderID, name: r.ItemName, resource: r.AssignedResource,
+        qty: r.Quantity, status: r.OrderStatus, priority: r.Priority,
+        start: r.ScheduledStart, startDt: r.ScheduledStartDt, endDt: r.ScheduledEndDt,
+        estHours: 0, actualHours: 0, remainHours: 0 };
+    }
+    const o = orderMap[r.OrderID];
+    o.estHours += r.EstimatedHours;
+    o.actualHours += r.ActualHours;
+    o.remainHours += r.RemainingHours;
+    if (r.ScheduledEndDt > o.endDt) o.endDt = r.ScheduledEndDt;
+  });
+  const orders = Object.values(orderMap);
+
+  // ── KPIs
+  const totalOrders = orders.length;
+  const totalHours = sum(data, 'EstimatedHours');
+  const totalActual = sum(data, 'ActualHours');
+  const highPriority = orders.filter(o => o.priority === 'High').length;
+  const now = new Date('2026-04-10T08:00:00');
+  const onTrack = orders.filter(o => o.endDt >= now || o.remainHours === 0).length;
+  const onTrackPct = pct(onTrack, totalOrders);
+  const todayStr = '2026-04-09';
+  const samplesToday = [...new Set(
+    data.filter(r => r.ScheduledStart && r.ScheduledStart.startsWith(todayStr)).map(r => r.OrderID)
+  )].reduce((s, oid) => {
+    const row = data.find(r => r.OrderID === oid);
+    return s + (row ? row.Quantity : 0);
+  }, 0);
+  const utilPct = totalHours > 0 ? pct(totalActual, totalHours) : 0;
+
+  // ── Workload by resource
+  const workloadByResource = groupSum(data, 'AssignedResource', 'EstimatedHours');
+  const maxWorkload = Math.max(...workloadByResource.map(w => w[1]), 1);
+
+  // ── Status / Priority counts (order-level)
+  const statusCounts = groupCount(orders, 'status');
+  const priorityCounts = groupCount(orders, 'priority');
+
+  // ── Machine utilization (use filtered data for scheduled hours, capacity table for max)
+  const machineHours = {};
+  data.forEach(r => {
+    if (r.MachineName) machineHours[r.MachineName] = (machineHours[r.MachineName] || 0) + r.EstimatedHours;
+  });
+  const machineUtil = capacityData.map(c => {
+    const sched = machineHours[c.MachineName] || 0;
+    return { name: c.MachineName, sched, cap: c.TotalCapacityHours, pct: pct(sched, c.TotalCapacityHours) };
+  }).sort((a, b) => b.pct - a.pct);
+
+  // ── Hours by department
+  const deptHours = groupSum(data, 'Department', 'EstimatedHours');
+  const maxDeptH = Math.max(...deptHours.map(d => d[1]), 1);
+
+  // ── Shift split
+  const shiftHours = groupSum(data, 'Shift', 'EstimatedHours');
+  const totalShiftH = shiftHours.reduce((s, sh) => s + sh[1], 0) || 1;
+
+  // ── Completion gauges
+  const actualVsEst = pct(totalActual, totalHours);
+  const releasedOrders = orders.filter(o => o.status === 'Released').length;
+  const releasedPct = pct(releasedOrders, totalOrders);
+
+  // ── Order table
+  let sortedOrders = [...orders];
+  sortedOrders.sort((a, b) => {
+    let va = a[tableSortCol], vb = b[tableSortCol];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return tableSortAsc ? -1 : 1;
+    if (va > vb) return tableSortAsc ? 1 : -1;
+    return 0;
+  });
+
+  // ── Build HTML
+  const pillHTML = (key, options, current) => options.map(o =>
+    `<span class="pill ${o === current ? 'active' : ''}" onclick="onPill('${key}','${esc(o)}')">${esc(o)}</span>`
+  ).join('');
+
+  const statusColor = { Scheduled: COLORS.primary, Released: COLORS.green };
+  const priorityColor = { High: COLORS.red, Medium: COLORS.amber, Low: COLORS.green };
+  const priorityOrder = ['High','Medium','Low'];
+
+  // Donut helpers
+  function donutGradient(entries, colorMap) {
+    const total = entries.reduce((s, e) => s + e[1], 0) || 1;
+    let cum = 0;
+    const stops = entries.map(([k, v]) => {
+      const start = cum; cum += (v / total) * 100;
+      return `${colorMap[k] || '#ccc'} ${start.toFixed(1)}% ${cum.toFixed(1)}%`;
+    });
+    return `conic-gradient(${stops.join(', ')})`;
+  }
+  function donutLegendHTML(entries, colorMap) {
+    return entries.map(([k, v]) =>
+      `<li><span class="legend-dot" style="background:${colorMap[k] || '#ccc'}"></span> ${esc(k)} <span class="legend-val">${v}</span></li>`
+    ).join('');
+  }
+
+  const arrow = (col) => tableSortCol === col ? (tableSortAsc ? ' ▲' : ' ▼') : '';
+
+  app.innerHTML = `
+  <!-- Title Bar -->
+  <div class="title-bar">
+    <h1><span>■</span> Routing Assignments Dashboard</h1>
+    <div class="meta">
+      <div><strong>Last Refreshed:</strong> ${new Date().toLocaleString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).toUpperCase()}</div>
+      <div>Snapshot Date: Apr 9, 2026 &nbsp;|&nbsp; <strong>${data.length}</strong> operation rows filtered</div>
+    </div>
+  </div>
+
+  <!-- Slicers -->
+  <div class="slicer-row">
+    <div class="slicer">
+      <span class="slicer-label">Department:</span>
+      <div class="slicer-pills">${pillHTML('department', ['All', ...allDepts], filters.department)}</div>
+    </div>
+    <div class="slicer">
+      <span class="slicer-label">Priority:</span>
+      <div class="slicer-pills">${pillHTML('priority', ['All', ...allPriorities], filters.priority)}</div>
+    </div>
+    <div class="slicer">
+      <span class="slicer-label">Shift:</span>
+      <div class="slicer-pills">${pillHTML('shift', ['All', ...allShifts], filters.shift)}</div>
+    </div>
+    <div class="slicer">
+      <span class="slicer-label">Resource:</span>
+      <div class="slicer-pills">${pillHTML('resource', ['All', ...allResources], filters.resource)}</div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card c1"><div class="kpi-label">Total Orders</div><div class="kpi-value">${totalOrders}</div><div class="kpi-sub">Active test orders</div></div>
+    <div class="kpi-card c2"><div class="kpi-label">Total Workload</div><div class="kpi-value">${fmt(totalHours)} h</div><div class="kpi-sub">Estimated hours</div></div>
+    <div class="kpi-card c3"><div class="kpi-label">Utilization</div><div class="kpi-value">${utilPct}%</div><div class="kpi-sub">Actual / Estimated</div></div>
+    <div class="kpi-card c4"><div class="kpi-label">High Priority</div><div class="kpi-value">${highPriority}</div><div class="kpi-sub">Orders marked High</div></div>
+    <div class="kpi-card c5"><div class="kpi-label">On Track</div><div class="kpi-value">${onTrackPct}%</div><div class="kpi-sub">${onTrack} of ${totalOrders} within schedule</div></div>
+    <div class="kpi-card c6"><div class="kpi-label">Samples Today</div><div class="kpi-value">${samplesToday}</div><div class="kpi-sub">Scheduled Apr 9</div></div>
+  </div>
+
+  <!-- Row 1: Workload Bar + Status/Priority Donuts -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>Total Workload by Resource (Estimated Hours)</h3>
+      <div class="bar-chart">
+        ${workloadByResource.map(([name, hrs], i) => `
+        <div class="bar-group">
+          <div class="bar-stack">
+            <div class="bar" style="height:${(hrs / maxWorkload * 85).toFixed(1)}%; background:${BAR_PALETTE[i % BAR_PALETTE.length]};" title="${esc(name)} — ${fmt(hrs)}h">
+              <span class="bar-val">${fmt(hrs)}</span>
+            </div>
+          </div>
+          <div class="bar-label">${esc(name)}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Order Status / Priority Mix</h3>
+      <div style="margin-bottom:18px">
+        <div style="font-size:11px;color:${COLORS.muted};font-weight:600;margin-bottom:6px">BY STATUS</div>
+        <div class="donut-wrap">
+          <div class="donut" style="background:${donutGradient(statusCounts, statusColor)}"></div>
+          <ul class="donut-legend">${donutLegendHTML(statusCounts, statusColor)}</ul>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:${COLORS.muted};font-weight:600;margin-bottom:6px">BY PRIORITY</div>
+        <div class="donut-wrap">
+          <div class="donut" style="background:${donutGradient(
+            priorityOrder.map(p => [p, orders.filter(o => o.priority === p).length]).filter(e => e[1] > 0),
+            priorityColor
+          )}"></div>
+          <ul class="donut-legend">${donutLegendHTML(
+            priorityOrder.map(p => [p, orders.filter(o => o.priority === p).length]).filter(e => e[1] > 0),
+            priorityColor
+          )}</ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Machine Utilization + Gauges -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>Instrument Utilization (Scheduled Hours / Capacity)</h3>
+      <div class="h-bar-chart">
+        ${machineUtil.map((m, i) => {
+          const grad = MACHINE_GRADIENT[i % MACHINE_GRADIENT.length];
+          const barColor = m.pct >= 85 ? `linear-gradient(90deg,${COLORS.red},#ef5350)` : `linear-gradient(90deg,${grad[0]},${grad[1]})`;
+          return `<div class="h-bar-row">
+            <div class="h-bar-label">${esc(m.name)}</div>
+            <div class="h-bar-track"><div class="h-bar-fill" style="width:${Math.min(m.pct, 100)}%;background:${barColor}"><span>${m.pct}%</span></div></div>
+            <div class="h-bar-val">${fmt(m.sched)} h</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Completion & Progress</h3>
+      <div class="gauge-row">
+        <div class="gauge">
+          <div class="gauge-ring" data-pct="${actualVsEst}" style="background:conic-gradient(${COLORS.green} 0% ${actualVsEst}%, #e8ecee ${actualVsEst}% 100%)"></div>
+          <div class="gauge-label">Actual vs Est</div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-ring" data-pct="${onTrackPct}" style="background:conic-gradient(${COLORS.primary} 0% ${onTrackPct}%, #e8ecee ${onTrackPct}% 100%)"></div>
+          <div class="gauge-label">On Schedule</div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-ring" data-pct="${releasedPct}" style="background:conic-gradient(${COLORS.amber} 0% ${releasedPct}%, #e8ecee ${releasedPct}% 100%)"></div>
+          <div class="gauge-label">Released %</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Table + Dept/Shift -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>Order Schedule Detail (${sortedOrders.length} orders${sortedOrders.length > 50 ? ' — top 50 shown' : ''})</h3>
+      <div class="table-scroll">
+      <table class="mini-table">
+        <thead><tr>
+          <th onclick="sortTable('id')">Order${arrow('id')}</th>
+          <th onclick="sortTable('name')">Test Name${arrow('name')}</th>
+          <th onclick="sortTable('resource')">Assigned To${arrow('resource')}</th>
+          <th onclick="sortTable('qty')">Qty${arrow('qty')}</th>
+          <th onclick="sortTable('estHours')">Est Hrs${arrow('estHours')}</th>
+          <th onclick="sortTable('status')">Status${arrow('status')}</th>
+          <th onclick="sortTable('priority')">Priority${arrow('priority')}</th>
+          <th onclick="sortTable('start')">Start${arrow('start')}</th>
+        </tr></thead>
+        <tbody>
+          ${sortedOrders.slice(0, 50).map(o => `<tr>
+            <td>${esc(o.id)}</td>
+            <td>${esc(o.name)}</td>
+            <td>${esc(o.resource)}</td>
+            <td>${o.qty}</td>
+            <td>${fmt(o.estHours)}</td>
+            <td><span class="badge badge-${o.status}">${o.status}</span></td>
+            <td><span class="badge badge-${o.priority}">${o.priority}</span></td>
+            <td>${o.start ? new Date(o.start).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Hours by Department</h3>
+      <div class="h-bar-chart" style="margin-top:10px">
+        ${deptHours.map(([dept, hrs], i) => `<div class="h-bar-row">
+          <div class="h-bar-label">${esc(dept)}</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:${(hrs / maxDeptH * 100).toFixed(0)}%;background:${BAR_PALETTE[i % BAR_PALETTE.length]}"><span>${fmt(hrs)} h</span></div></div>
+        </div>`).join('')}
+      </div>
+
+      <h3 style="margin-top:24px">Day vs Night Shift Split</h3>
+      <div class="donut-wrap" style="margin-top:8px">
+          <div class="donut" style="width:120px;height:120px;background:${donutGradient(shiftHours, {Day:COLORS.primary, Night:COLORS.deepTeal})}"></div>
+        <ul class="donut-legend">
+          ${shiftHours.map(([s, h]) =>
+            `<li><span class="legend-dot" style="background:${s === 'Day' ? COLORS.primary : COLORS.deepTeal}"></span> ${s} Shift <span class="legend-val">${pct(h, totalShiftH)}%</span></li>`
+          ).join('')}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    Routing Assignments Dashboard &nbsp;|&nbsp; Data: routing-assignments-dataset.csv &nbsp;|&nbsp; Filterable &middot; Sortable &nbsp;|&nbsp; &copy; 2026
+  </div>`;
+}
+
+// ── Table sorting ────────────────────────────────────────────────
+function sortTable(col) {
+  if (tableSortCol === col) tableSortAsc = !tableSortAsc;
+  else { tableSortCol = col; tableSortAsc = true; }
+  render();
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+loadData().catch(err => {
+  document.getElementById('app').innerHTML = `<div class="loading" style="color:#D04A02">Failed to load data. Ensure CSV files are in the same directory.<br><small>${esc(err.message)}</small></div>`;
+});
+</script>
+</body>
+</html>
